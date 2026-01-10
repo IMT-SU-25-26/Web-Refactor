@@ -1,8 +1,11 @@
-import { integer, pgTable, varchar } from "drizzle-orm/pg-core";
+import { integer, pgTable, pgEnum, varchar } from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("users", {
-  id: integer().primaryKey().generatedAlwaysAsIdentity(),
-  name: varchar({ length: 255 }).notNull(),
-  age: integer().notNull(),
-  email: varchar({ length: 255 }).notNull().unique(),
-});
+export const statusEnum = pgEnum('status', ['pending', 'approved', 'rejected']);
+
+export const roleEnum = pgEnum('role', ['student', 'tech', 'sa', 'pr', 'lecturer']);
+
+export const categoryEnum = pgEnum('category', ['activity', 'research']);
+
+export const formatEnum = pgEnum('format', ['individual', 'group']);
+
+
