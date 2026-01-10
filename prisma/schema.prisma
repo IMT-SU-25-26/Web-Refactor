@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -11,4 +5,191 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+// USER SCHEMA
+enum Role {
+  STUDENT
+  TECH
+  SA
+  PR
+  LECTURER
+  PULSE
+}
+
+model User {
+  id            String  @id
+  name          String
+  email         String
+  emailVerified Boolean @default(false)
+  image         String?
+  nim           String? @unique
+  phoneNumber   String? @unique
+  role          Role    @default(STUDENT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions     Session[]
+  accounts     Account[]
+  applications Application[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+// IMAGE SCHEMA
+model Image {
+  id            String  @id @default(cuid())
+  url           String
+  publicId      String  @unique
+  activityId    String?
+  achievementId String?
+  competitionId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activity    Activity?    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  achievement Achievement? @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+}
+
+// ACTIVITY SCHEMA
+enum Category {
+  ACTIVITY
+  RESEARCH
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  cohort      String?
+  creditPoint Int
+  quota       Int
+  startDate   DateTime
+  category    Category
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       Image[]
+  applications Application[]
+}
+
+// ACHIEVEMENT SCHEMA
+model Achievement {
+  id          String  @id @default(cuid())
+  title       String
+  description String
+  teamInfo    String
+  featured    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images Image[]
+}
+
+// COMPETITION SCHEMA
+enum Scope {
+  REGIONAL
+  NATIONAL
+  INTERNATIONAL
+}
+
+enum Format {
+  INDIVIDUAL
+  GROUP
+}
+
+model Competition {
+  id            String   @id @default(cuid())
+  name          String
+  organizer     String
+  description   String
+  category      String
+  information   String
+  scope         Scope
+  format        Format
+
+  startDate     DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  images       Image[]
+  applications Application[]
+}
+
+// APPLICATION SCHEMA
+enum Status {
+  PENDING
+  REJECTED
+  APPROVED
+}
+
+model Application {
+  id            String   @id @default(cuid())
+  userId        String
+  activityId    String?
+  competitionId String?
+  status        Status   @default(PENDING)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  activity    Activity?    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  competition Competition? @relation(fields: [competitionId], references: [id], onDelete: Cascade)
 }
