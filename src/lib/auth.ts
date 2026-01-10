@@ -1,22 +1,15 @@
 import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "./db";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import prisma from "./prisma";
 
 export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
   }),
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
-  user: {
-    additionalFields: {
-      nim: { type: "string", nullable: true },
-      phoneNumber: { type: "string", nullable: true },
-      role: { type: "string", defaultValue: "student" },
     },
   },
 });
