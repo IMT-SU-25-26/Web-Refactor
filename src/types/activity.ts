@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Category } from "@/generated/prisma/enums";
 
-export const ActivitySchema = {
+export const ActivitySchema = z.object ({
   title: z
     .string()
     .min(1, "Title is required")
@@ -19,6 +19,6 @@ export const ActivitySchema = {
       message: "Start date must be a valid date",
     }),
   category: z.enum(Category, "Category is required"),
-};
+});
 
 export type Activity = z.infer<typeof ActivitySchema>;
