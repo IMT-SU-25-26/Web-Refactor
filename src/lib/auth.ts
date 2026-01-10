@@ -1,22 +1,22 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { db } from "../db"; 
-import * as schema from "./db/schema";
+import { db } from "./db";
 
 export const auth = betterAuth({
-    database: drizzleAdapter(db, {
-        provider: "pg", // Change to "mysql" or "sqlite" if needed
-        schema: schema,
-    }),
-    emailAndPassword: { enabled: true },
-    // Adding a custom field to the User table
-    user: {
-        additionalFields: {
-            subscriptionTier: {
-                type: "string",
-                defaultValue: "free",
-                required: false,
-            }
-        }
-    }
+  database: drizzleAdapter(db, {
+    provider: "pg",
+  }),
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  user: {
+    additionalFields: {
+      nim: { type: "string", nullable: true },
+      phoneNumber: { type: "string", nullable: true },
+      role: { type: "string", defaultValue: "student" },
+    },
+  },
 });
