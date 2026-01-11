@@ -1,0 +1,57 @@
+import Image from "next/image";
+import { ServiceCard } from "@/types/pages/home/service-card";
+
+export default function HomeServicesCard({
+  title,
+  type,
+  description,
+  color,
+  opacity,
+  className,
+  imageUrl,
+}: ServiceCard) {
+  return (
+    <div
+      className={`relative min-h-80 min-w-120 bg-[#F5F5F5] p-4 sm:p-8 flex flex-col gap-4 shadow-[-12px_12px_5px_-5px_rgba(0,0,0,0.25)] ${className}`}
+      style={{ opacity }}
+    >
+      <div className="service-image flex flex-col justify-end image-container-hsc bg-gray-200 w-full h-[65%] relative overflow-hidden">
+        {imageUrl && (
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 30vw"
+          />
+        )}
+        <div
+          className="w-full h-[10%] relative z-10"
+          style={{ backgroundColor: color }}
+        ></div>
+      </div>
+      <div>
+        <h1 className="service-title-text font-family-gill-condensed-bold font-bold text-4xl">
+          {title}
+        </h1>
+        <h2
+          className="service-type-text w-fit text-lg px-4 text-white font-family-impact uppercase"
+          style={{ backgroundColor: color }}
+        >
+          {type}
+        </h2>
+        <p className="service-description-text font-family-gill text-black font-bold">
+          {description}
+        </p>
+      </div>
+      <Image
+        src="/home/sobekan-community-service.png"
+        alt="Service Image"
+        width={1000}
+        height={1000}
+        draggable={false}
+        className="absolute bottom-[-7.5%] z-20 left-0"
+      />
+    </div>
+  );
+}
