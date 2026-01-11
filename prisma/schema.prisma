@@ -9,7 +9,7 @@ datasource db {
 
 // USER SCHEMA
 enum Role {
-  STUDENT
+  STUDENT 
   TECH
   SA
   PR
