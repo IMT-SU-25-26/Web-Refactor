@@ -2,7 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { ActivitySchema } from "@/types/db/activity";
-import { revalidatePath } from "next/cache"; 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export async function getAllActivities() {
@@ -51,7 +51,7 @@ export async function updateActivity(
   const result = ActivitySchema.safeParse(data);
 
   if (!result.success) {
-    throw new Error("Invalid activity data submitted.");
+    return { error: "Invalid activity data submitted." };
   }
 
   try {
@@ -65,7 +65,7 @@ export async function updateActivity(
 
     return { success: true, activity };
   } catch (err) {
-    throw new Error("Failed to update activity: " + (err as Error).message);
+    return { error: "Failed to update activity: " + (err as Error).message };
   }
 }
 
@@ -80,6 +80,6 @@ export async function deleteActivity(activityId: string) {
 
     return { success: true };
   } catch (err) {
-    throw new Error("Failed to delete activity: " + (err as Error).message);
+    return { error: "Failed to delete activity: " + (err as Error).message };
   }
 }

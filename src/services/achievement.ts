@@ -23,7 +23,9 @@ export async function getAchievementById(achievementId: string) {
   });
 }
 
-export async function createAchievement(data: z.infer<typeof AchievementSchema>) {
+export async function createAchievement(
+  data: z.infer<typeof AchievementSchema>
+) {
   const result = AchievementSchema.safeParse(data);
 
   if (!result.success) {
@@ -51,7 +53,7 @@ export async function updateAchievement(
   const result = AchievementSchema.safeParse(data);
 
   if (!result.success) {
-    throw new Error("Invalid achievement data submitted.");
+    return { error: "Invalid achievement data submitted." };
   }
 
   try {
@@ -65,7 +67,7 @@ export async function updateAchievement(
 
     return { success: true, achievement };
   } catch (err) {
-    throw new Error("Failed to update achievement: " + (err as Error).message);
+    return { error: "Failed to update achievement: " + (err as Error).message };
   }
 }
 
@@ -77,9 +79,9 @@ export async function deleteAchievement(achievementId: string) {
 
     revalidatePath("/achievements");
     revalidatePath("/dashboard/pr");
-    
+
     return { success: true };
   } catch (err) {
-    throw new Error("Failed to delete achievement: " + (err as Error).message);
+    return { error: "Failed to delete achievement: " + (err as Error).message };
   }
 }
