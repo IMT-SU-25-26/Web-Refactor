@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ImageSchema } from "../image";
 
 export const AchievementSchema = z.object({
   title: z
@@ -8,6 +9,7 @@ export const AchievementSchema = z.object({
   description: z.string().min(1, "Description is required"),
   teamInfo: z.string().min(1, "Team info is required"),
   featured: z.boolean().default(false),
+  images: z.array(ImageSchema).optional(),
 });
 
 export type Achievement = z.infer<typeof AchievementSchema>;

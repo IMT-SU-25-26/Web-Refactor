@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { ServiceCard } from "@/types/pages/home/service-card";
+import type { ServiceCard } from "@/types/pages/home/service-card";
 
-export default function HomeServicesCard({
+export function ServiceCard({
   title,
   type,
   description,

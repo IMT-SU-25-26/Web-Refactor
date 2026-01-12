@@ -1,9 +1,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { AchievementSchema } from "@/types/db/achievement";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { AchievementSchema } from "@/types/db/achievement";
 
 export async function getAllAchievements() {
   return await prisma.achievement.findMany({
@@ -24,7 +24,7 @@ export async function getAchievementById(achievementId: string) {
 }
 
 export async function createAchievement(
-  data: z.infer<typeof AchievementSchema>
+  data: z.infer<typeof AchievementSchema>,
 ) {
   const result = AchievementSchema.safeParse(data);
 
@@ -32,9 +32,14 @@ export async function createAchievement(
     return { error: "Invalid achievement data submitted." };
   }
 
+  const { images, ...rest } = result.data;
+
   try {
     const achievement = await prisma.achievement.create({
-      data: result.data,
+      data: {
+        ...rest,
+        images: images ? { create: images } : undefined,
+      },
     });
 
     revalidatePath("/achievements");
@@ -48,7 +53,7 @@ export async function createAchievement(
 
 export async function updateAchievement(
   achievementId: string,
-  data: z.infer<typeof AchievementSchema>
+  data: z.infer<typeof AchievementSchema>,
 ) {
   const result = AchievementSchema.safeParse(data);
 
@@ -56,10 +61,17 @@ export async function updateAchievement(
     return { error: "Invalid achievement data submitted." };
   }
 
+  const { images, ...rest } = result.data;
+
   try {
+    const updateData: Record<string, unknown> = { ...rest };
+    if (images !== undefined) {
+      updateData.images = { deleteMany: {}, create: images };
+    }
+
     const achievement = await prisma.achievement.update({
       where: { id: achievementId },
-      data: result.data,
+      data: updateData,
     });
 
     revalidatePath("/achievements");

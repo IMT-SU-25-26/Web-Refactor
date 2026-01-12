@@ -1,9 +1,18 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { ActivitySchema } from "@/types/db/activity";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { ActivitySchema } from "@/types/db/activity";
+
+export async function getLatestActivities(limit: number = 3) {
+  return await prisma.activity.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+  });
+}
 
 export async function getAllActivities() {
   return await prisma.activity.findMany({
@@ -30,9 +39,15 @@ export async function createActivity(data: z.infer<typeof ActivitySchema>) {
     return { error: "Invalid activity data submitted." };
   }
 
+  const { images, ...rest } = result.data;
+  const activityData = { ...rest, startDate: new Date(rest.startDate) };
+
   try {
     const activity = await prisma.activity.create({
-      data: result.data,
+      data: {
+        ...activityData,
+        images: images ? { create: images } : undefined,
+      },
     });
 
     revalidatePath("/activities");
@@ -46,7 +61,7 @@ export async function createActivity(data: z.infer<typeof ActivitySchema>) {
 
 export async function updateActivity(
   activityId: string,
-  data: z.infer<typeof ActivitySchema>
+  data: z.infer<typeof ActivitySchema>,
 ) {
   const result = ActivitySchema.safeParse(data);
 
@@ -54,10 +69,18 @@ export async function updateActivity(
     return { error: "Invalid activity data submitted." };
   }
 
+  const { images, ...rest } = result.data;
+  const activityData = { ...rest, startDate: new Date(rest.startDate) };
+
   try {
+    const updateData: Record<string, unknown> = { ...activityData };
+    if (images !== undefined) {
+      updateData.images = { deleteMany: {}, create: images };
+    }
+
     const activity = await prisma.activity.update({
       where: { id: activityId },
-      data: result.data,
+      data: updateData,
     });
 
     revalidatePath("/activities");

@@ -1,9 +1,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { ApplicationSchema } from "@/types/db/application";
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { ApplicationSchema } from "@/types/db/application";
 
 export async function getAllApplications() {
   return await prisma.application.findMany({
